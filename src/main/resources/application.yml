@@ -1,0 +1,84 @@
+### This is the main way to configure the application (other than annotations).
+### This fils is in Yaml format but you can also do this using the traditional
+### Java properties file.
+
+spring.datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://www.fangqiangwin.cn:3306/shadowsocks?autoReconnect=true&useSSL=false
+    username: root
+    password: fisher
+#    url: jdbc:mysql://qa.db.aws.mxj.mx:3306/smart_device_v2?autoReconnect=true&useSSL=false
+#    username: root
+#    password: mydreamplus.com
+
+server:
+  port: 8801
+
+#todo: make sure to always enable security in production
+security:
+  basic:
+    enabled: true
+
+#management endpoints on a separate port
+management:
+  port: 8811
+#  security:
+#    enabled: false # management port is internal only. no need to secure it.
+
+#default project info followed by actual injected pom-specified values.
+project:
+  name: ss-server
+  version: 0.1
+  description: ss server
+info:
+  build:
+    artifact: ${project.artifactId}
+    name: ${project.name}
+    description: ${project.description}
+    version: ${project.version}
+spring:
+  redis:
+    host: localhost
+    port: 6379
+    database: 15
+  jpa:
+    hibernate:
+      ddl-auto: update
+      generate_statistics: true
+      cache:
+        use_second_level_cache: true
+        use_query_cache: true
+        region:
+            factory_class: SingletonEhCacheRegionFactory
+    show-sql: false
+  datasource:
+    test-on-borrow: true
+    validation-query: select 1
+  profiles:
+    active: default
+
+# RabbitMQ
+mqtt:
+#   test 可用性
+  testTopic: testTopic
+  topic: SmartDeviceServerTopic
+#  # 通讯topic 唯一
+  deviceWillTopic: device-will
+  qos: 0
+#  broker: ssl://10.250.1.130:8883
+  broker: ssl://mqtt.mxj.mx:8883
+#  userName:  /qa:qa_smartdevice
+#  password: qaf1zzb4ck
+  userName:  /liji:liji_host
+  password: liji_host
+
+
+
+## 本地缓存
+#spring:
+#  cache:
+#    cache-names:
+#      - getPersonById
+#      - name2
+#    caffeine:
+#      spec: expireAfterWrite=30m
