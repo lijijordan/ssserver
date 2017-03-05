@@ -19,7 +19,7 @@
     </parent>
 
     <properties>
-        <start-class>com.mydreamplus.rs.ApplicationContext</start-class>
+        <start-class>com.ss.server.Application</start-class>
     </properties>
 
     <dependencies>
