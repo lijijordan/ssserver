@@ -17,6 +17,11 @@ public class CommandExecutor {
 
     private static final Logger log = LoggerFactory.getLogger(CommandExecutor.class);
 
+    /**
+     * The entry point of application.
+     *
+     * @param args the input arguments
+     */
     public static void main(String[] args) {
         CommandExecutor obj = new CommandExecutor();
         //in mac oxs
@@ -25,11 +30,21 @@ public class CommandExecutor {
         //in windows
         String command = "./server_darwin_386 -t 127.0.0.1:10896 -l :1980 -mode fast2";
 //        String command = "pwd";
-        String output = obj.executeCommand(command);
-        System.out.println(output);
+        obj.executeCommand(command);
     }
 
-    public static String executeCommand(String command) {
+    /**
+     * Execute command.
+     *
+     * @param command the command
+     */
+    public static void executeCommand(String command) {
+        log.info("创建可执行线程");
+        new Thread(() -> execute(command)).start();
+        log.info("创建线程结束");
+    }
+
+    private static String execute(String command) {
         log.info("执行命令:" + command);
         StringBuffer output = new StringBuffer();
         Process p;

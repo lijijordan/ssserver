@@ -32,10 +32,10 @@ project:
   description: ss server
 info:
   build:
-    artifact: ssserver
+    artifact: ${project.artifactId}
     name: ${project.name}
     description: ${project.description}
-    version: 0.1.0
+    version: ${project.version}
 spring:
   redis:
     host: localhost
