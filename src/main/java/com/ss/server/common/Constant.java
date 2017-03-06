@@ -12,4 +12,13 @@ public class Constant {
     public static final int KCPTUN_PORT_INCREASE = 10000;
 
     public static final String SS_HOST = "106.185.35.79";
+
+    public static final String KCP_DEFAULT_HOST = "106.185.35.79";
+
+    public static final String LOCAL_HOST = "127.0.0.1";
+
+    public static final String KCP_MODE = "fast2";
+    public static final String SS_SEC_MODE_RC4_MD5 = "rc4-md5";
+
+
 }

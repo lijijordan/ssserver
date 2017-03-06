@@ -1,6 +1,6 @@
 package com.ss.server.api.rest;
 
-import com.ss.server.domain.SSConfig;
+import com.ss.server.domain.UserConfigDto;
 import com.ss.server.domain.in.UserInfo;
 import com.ss.server.domain.out.BaseResponse;
 import com.ss.server.service.SSManager;
@@ -30,7 +30,7 @@ public class ToolServiceController extends AbstractRestHandler {
     @ApiOperation(value = "换取ss配置", notes = "使用秘钥交换ss配置信息")
     public BaseResponse exchange(@RequestBody UserInfo userInfo) {
         BaseResponse response = new BaseResponse(RESPONSE_SUCCESS);
-        SSConfig ssConfig = this.ssManager.getConfig(userInfo);
+        UserConfigDto ssConfig = this.ssManager.getConfig(userInfo);
         response.setData(ssConfig);
         return response;
     }

@@ -7,10 +7,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /*
  * Demonstrates how to set up RESTful API endpoints using Spring MVC
@@ -24,14 +21,14 @@ public class SSAdminController extends AbstractRestHandler {
     @Autowired
     private SSManager ssManager;
 
-    @RequestMapping(value = "/key/Generation",
+    @RequestMapping(value = "/key/Generation/{host:.+}",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    @ApiOperation(value = "生成秘钥", notes = "使用秘钥交换ss配置信息")
-    public BaseResponse keyGeneration() {
+    @ApiOperation(value = "生成秘钥", notes = "8位秘钥")
+    public BaseResponse keyGeneration(@PathVariable String host) {
         BaseResponse response = new BaseResponse(RESPONSE_SUCCESS);
-        String key = ssManager.generateKey(8);
+        String key = ssManager.generateKey(8, host);
         response.setData(key);
         return response;
     }

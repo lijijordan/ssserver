@@ -8,4 +8,5 @@ package com.ss.server.domain.out;
  * To change this template use File | Settings | File Templates.
  */
 public class ConfigDto {
+
 }

@@ -17,10 +17,19 @@ public class SSKey extends BaseEntity {
     @Column(name = "s_key")
     private String key;
 
+    private String keyHost;
     /**
      * is Used by client
      */
     private boolean isUsed;
+
+    public String getKeyHost() {
+        return keyHost;
+    }
+
+    public void setKeyHost(String keyHost) {
+        this.keyHost = keyHost;
+    }
 
     public boolean isUsed() {
         return isUsed;

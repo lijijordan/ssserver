@@ -19,6 +19,26 @@ public class Kcptun extends BaseEntity {
     private String kcpHost;
     private int kcpPort;
 
+    private String kcpMode;
+
+    private String ssMode;
+
+    public String getSsMode() {
+        return ssMode;
+    }
+
+    public void setSsMode(String ssMode) {
+        this.ssMode = ssMode;
+    }
+
+    public String getKcpMode() {
+        return kcpMode;
+    }
+
+    public void setKcpMode(String kcpMode) {
+        this.kcpMode = kcpMode;
+    }
+
     public String getKcpHost() {
         return kcpHost;
     }
