@@ -119,7 +119,21 @@ public class SSUser {
 	public void setUsed(float used) {
 		this.used = used;
 	}
-	
-	
 
+	@Override
+	public String toString() {
+		return "SSUser{" +
+				"ID=" + ID +
+				", userName='" + userName + '\'' +
+				", email='" + email + '\'' +
+				", password='" + password + '\'' +
+				", pass='" + pass + '\'' +
+				", plan='" + plan + '\'' +
+				", port=" + port +
+				", enable=" + enable +
+				", createTime=" + createTime +
+				", transferEnable=" + transferEnable +
+				", used=" + used +
+				'}';
+	}
 }

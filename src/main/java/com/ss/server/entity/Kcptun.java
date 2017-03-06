@@ -50,4 +50,14 @@ public class Kcptun extends BaseEntity {
     public void setKcpPort(int kcpPort) {
         this.kcpPort = kcpPort;
     }
+
+    @Override
+    public String toString() {
+        return "Kcptun{" +
+                "ssHost='" + ssHost + '\'' +
+                ", ssPort=" + ssPort +
+                ", kcpHost='" + kcpHost + '\'' +
+                ", kcpPort=" + kcpPort +
+                '}';
+    }
 }

@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
@@ -122,7 +121,6 @@ public class SSManager {
      *
      * @return the config
      */
-    @Transactional
     public SSConfig getConfig(UserInfo userInfo) {
         SSConfig ssConfig = new SSConfig();
         if (validateKey(userInfo.getKey())) {
@@ -130,7 +128,9 @@ public class SSManager {
             user.setEmail(userInfo.getEmail());
             user.setFirstName(userInfo.getName());
             SSUser ssUser = this.createSSUser(user);
+            log.info("创建SS用户：{}", ssUser.toString());
             Kcptun kcptun = this.createKcpUser(ssUser);
+            log.info("创建KCP用户：{}", kcptun.toString());
             ssConfig.setKcpHost(kcptun.getKcpHost());
             ssConfig.setKcpMode(SSConfig.KCP_MODE);
             ssConfig.setKcpPort(kcptun.getKcpPort());
