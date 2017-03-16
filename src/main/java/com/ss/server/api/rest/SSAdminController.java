@@ -1,5 +1,6 @@
 package com.ss.server.api.rest;
 
+import com.ss.server.domain.SSKeyRequest;
 import com.ss.server.domain.out.BaseResponse;
 import com.ss.server.service.SSManager;
 import io.swagger.annotations.Api;
@@ -21,14 +22,14 @@ public class SSAdminController extends AbstractRestHandler {
     @Autowired
     private SSManager ssManager;
 
-    @RequestMapping(value = "/key/Generation/{host:.+}",
-            method = RequestMethod.POST,
+    @RequestMapping(value = "/key",
+            method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    @ApiOperation(value = "生成秘钥", notes = "8位秘钥")
-    public BaseResponse keyGeneration(@PathVariable String host) {
+    @ApiOperation(value = "生成秘钥")
+    public BaseResponse keyGeneration(@RequestBody SSKeyRequest request) {
         BaseResponse response = new BaseResponse(RESPONSE_SUCCESS);
-        String key = ssManager.generateKey(8, host);
+        String key = ssManager.generateKey(request.getLength(), request.getKeyHost(), request.getFlow());
         response.setData(key);
         return response;
     }

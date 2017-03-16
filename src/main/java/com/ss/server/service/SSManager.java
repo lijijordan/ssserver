@@ -5,8 +5,10 @@ import com.ss.server.dao.SSUserDao;
 import com.ss.server.dao.jpa.KcptunRepository;
 import com.ss.server.dao.jpa.SSKeyRepository;
 import com.ss.server.dao.jpa.UserConfigRepository;
+import com.ss.server.domain.AccountInfo;
 import com.ss.server.domain.User;
 import com.ss.server.domain.UserConfigDto;
+import com.ss.server.domain.in.ChargeRequest;
 import com.ss.server.domain.in.UserInfo;
 import com.ss.server.entity.Kcptun;
 import com.ss.server.entity.SSKey;
@@ -40,9 +42,8 @@ public class SSManager {
     /**
      * The constant DEFAULT_FLOW.
      */
-// 5GB 默认
-    public final static float DEFAULT_FLOW = 5;
     private static final Logger log = LoggerFactory.getLogger(SSManager.class);
+
     @Autowired
     private SSUserDao ssUserDao;
 
@@ -59,9 +60,10 @@ public class SSManager {
      * Create user.
      *
      * @param user the user
+     * @param flow the flow
      * @return the ss user
      */
-    public SSUser createSSUser(User user) {
+    public SSUser createSSUser(User user, int flow) {
         log.info("创建SS用户：{}", user.toString());
         int port = this.getMaxPort();
         String pass = RandomStringUtils.randomNumeric(6);
@@ -71,7 +73,7 @@ public class SSManager {
         ss.setPass(pass);
         ss.setPassword(pass);
         ss.setPort(port);
-        ss.setTransferEnable(DEFAULT_FLOW * TRAFFIC_UNIT_G);
+        ss.setTransferEnable(flow * TRAFFIC_UNIT_G);
         ss.setUsed(0);
         ss.setUserName(user.getFirstName());
         ssUserDao.save(ss);
@@ -102,12 +104,25 @@ public class SSManager {
      * @return the string
      */
     public String generateKey(int keyLength, String host) {
+        return this.generateKey(keyLength, host, Constant.DEFAULT_FLOW_5_GB);
+    }
+
+    /**
+     * Generate key string.
+     *
+     * @param keyLength the key length
+     * @param host      the host
+     * @param flow      the flow
+     * @return the string
+     */
+    public String generateKey(int keyLength, String host, int flow) {
         if (host.equals("")) {
             host = Constant.KCP_DEFAULT_HOST;
         }
         String key = KeyGenerator.make(keyLength);
         SSKey ssKey = new SSKey();
         ssKey.setKey(key);
+        ssKey.setFlow(flow);
         ssKey.setKeyHost(host);
         ssKey.setKeyLength(keyLength);
         this.ssKeyRepository.save(ssKey);
@@ -115,14 +130,14 @@ public class SSManager {
     }
 
 
-    private String validateKey(String key) {
+    private SSKey validateKey(String key) {
         SSKey ssKey = this.ssKeyRepository.findByKey(key);
         if (ssKey != null && !ssKey.isUsed()) {
             // 验证完成失效
             ssKey.setUpdateTime(new Date());
             ssKey.setUsed(true);
             this.ssKeyRepository.save(ssKey);
-            return ssKey.getKeyHost();
+            return ssKey;
         } else {
             return null;
         }
@@ -144,13 +159,13 @@ public class SSManager {
             return ssConfig;
         } else {
             // 验证秘钥
-            String host = validateKey(userInfo.getKey());
-            if (host != null && !host.equals("")) {
+            SSKey ssKey = validateKey(userInfo.getKey());
+            if (ssKey != null) {
                 User user = new User();
-                user.setEmail(userInfo.getEmail());
-                user.setFirstName(userInfo.getName());
-                SSUser ssUser = this.createSSUser(user);
-                Kcptun kcptun = this.createKcpUser(ssUser.getPort(), host);
+                user.setEmail(userInfo.getMac());
+                user.setFirstName(userInfo.getMac());
+                SSUser ssUser = this.createSSUser(user, ssKey.getFlow());
+                Kcptun kcptun = this.createKcpUser(ssUser.getPort(), ssKey.getKeyHost());
                 this.executeProcess(kcptun);
                 UserConfig ssConfig = this.saveUserConfig(userInfo, kcptun, ssUser);
                 UserConfigDto userConfigDto = new UserConfigDto();
@@ -207,5 +222,43 @@ public class SSManager {
         log.info("创建KCP进程");
         String command = "./server_linux_386 -t " + kcptun.getKcpHost() + ":" + kcptun.getSsPort() + " -l :" + kcptun.getKcpPort() + " -mode fast2";
         CommandExecutor.executeCommand(command);
+    }
+
+
+    /**
+     * Gets over flow by mac.
+     *
+     * @param mac the mac
+     * @return the over flow by mac
+     */
+    public AccountInfo getOverFlowByMac(String mac) {
+        AccountInfo accountInfo = new AccountInfo();
+        accountInfo.setLastFlow(this.ssUserDao.getLastFlow(mac) / Constant.PER_GB);
+        return accountInfo;
+    }
+
+
+    /**
+     * Charge ss boolean.
+     *
+     * @param chargeRequest the charge request
+     * @return the boolean
+     */
+    public boolean chargeSS(ChargeRequest chargeRequest) {
+        UserConfig userConfig = findConfigByMac(chargeRequest.getMac());
+        if (userConfig != null) {
+            // 验证秘钥
+            SSKey ssKey = validateKey(chargeRequest.getKey());
+            if (ssKey == null) {
+                throw new RuntimeException("秘钥验证失败");
+            } else {
+                // 增加流量操作
+                ssUserDao.updateFlow(chargeRequest.getMac(), ssKey.getFlow() * Constant.PER_GB);
+            }
+            return true;
+        } else {
+            throw new RuntimeException("没有找到这个mac地址");
+            // 验证秘钥
+        }
     }
 }

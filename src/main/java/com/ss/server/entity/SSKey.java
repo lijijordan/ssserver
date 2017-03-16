@@ -23,6 +23,19 @@ public class SSKey extends BaseEntity {
      */
     private boolean isUsed;
 
+    /**
+     * 流量
+     */
+    private int flow;
+
+    public int getFlow() {
+        return flow;
+    }
+
+    public void setFlow(int flow) {
+        this.flow = flow;
+    }
+
     public String getKeyHost() {
         return keyHost;
     }

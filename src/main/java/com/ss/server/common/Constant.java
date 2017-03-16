@@ -21,4 +21,10 @@ public class Constant {
     public static final String SS_SEC_MODE_RC4_MD5 = "rc4-md5";
 
 
+    public static final int DEFAULT_FLOW_5_GB = 5;
+
+    public static final long PER_GB = 1024 * 1024 * 1024;
+
+    public static final long PER_MB = 1024 * 1024;
+
 }

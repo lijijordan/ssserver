@@ -36,6 +36,7 @@ public class SSUserDaoImpl implements SSUserDao {
         });
     }
 
+
     @Override
     public SSUser get(String email) {
         String sql = "select uid, user_name, email, pass, passwd, t, u, d, plan, "
@@ -64,5 +65,27 @@ public class SSUserDaoImpl implements SSUserDao {
         String sql = " select max(port) from user";
         return jdbcTemplate.queryForObject(sql, Integer.class);
     }
+
+    @Override
+    public float getLastFlow(String mac) {
+        String sql = "select uid, user_name, email, pass, passwd, t, u, d, plan, "
+                + "transfer_enable, port, switch, enable, type, reg_date, money"
+                + " from user where user_name=?";
+        return jdbcTemplate.queryForObject(sql, new Object[]{mac}, (rs, rowNum) -> {
+            float used1 = rs.getFloat("u");
+            float used2 = rs.getFloat("d");
+            float total = rs.getFloat("transfer_enable");
+            return total - (used1 + used2);
+        });
+    }
+
+    @Override
+    public void updateFlow(String mac, long flow) {
+        String sql = "update user set transfer_enable=transfer_enable + ?  where user_name = ?;";
+        jdbcTemplate.update(sql, new Object[]{
+                flow, mac
+        });
+    }
+
 
 }
