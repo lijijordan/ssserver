@@ -218,7 +218,7 @@ public class SSManager {
      *
      * @param kcptun
      */
-    private void executeProcess(Kcptun kcptun) {
+    public void executeProcess(Kcptun kcptun) {
         log.info("创建KCP进程");
         String command = "./server_linux_386 -t " + kcptun.getKcpHost() + ":" + kcptun.getSsPort() + " -l :" + kcptun.getKcpPort() + " -mode fast2";
         CommandExecutor.executeCommand(command);
@@ -261,4 +261,15 @@ public class SSManager {
             // 验证秘钥
         }
     }
+
+
+    /**
+     * Find all kcptun iterable.
+     *
+     * @return the iterable
+     */
+    public Iterable<Kcptun> findAllKcptun() {
+        return kcptunRepository.findAll();
+    }
+
 }
