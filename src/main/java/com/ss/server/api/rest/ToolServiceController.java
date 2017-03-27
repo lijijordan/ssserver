@@ -1,7 +1,6 @@
 package com.ss.server.api.rest;
 
 import com.ss.server.domain.UserConfigDto;
-import com.ss.server.domain.in.ChargeRequest;
 import com.ss.server.domain.in.UserInfo;
 import com.ss.server.domain.out.BaseResponse;
 import com.ss.server.service.SSManager;
@@ -11,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 /*
  * Demonstrates how to set up RESTful API endpoints using Spring MVC
@@ -38,22 +39,11 @@ public class ToolServiceController extends AbstractRestHandler {
             consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(value = "换取ss配置", notes = "使用秘钥交换ss配置信息")
-    public BaseResponse exchange(@RequestBody UserInfo userInfo) {
+    public BaseResponse exchange(@RequestBody UserInfo userInfo, HttpServletRequest request) {
         BaseResponse response = new BaseResponse(RESPONSE_SUCCESS);
-        UserConfigDto ssConfig = this.ssManager.getConfig(userInfo);
+        userInfo.setIp(request.getRemoteAddr());
+        UserConfigDto ssConfig = this.ssManager.getUserConfig(userInfo);
         response.setData(ssConfig);
-        return response;
-    }
-
-
-    @RequestMapping(value = "/charge",
-            method = RequestMethod.POST,
-            consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
-    @ApiOperation(value = "购买流量")
-    public BaseResponse charge(@RequestBody ChargeRequest request) {
-        BaseResponse response = new BaseResponse(RESPONSE_SUCCESS);
-        this.ssManager.chargeSS(request);
         return response;
     }
 
@@ -72,6 +62,22 @@ public class ToolServiceController extends AbstractRestHandler {
     public BaseResponse getValue(@PathVariable String mac) {
         BaseResponse response = new BaseResponse(RESPONSE_SUCCESS);
         response.setData(this.ssManager.getOverFlowByMac(mac));
+        return response;
+    }
+
+    /**
+     * Gets guide sentence.
+     *
+     * @return the guide sentence
+     */
+    @RequestMapping(value = "/sentence/get",
+            method = RequestMethod.GET,
+            consumes = MediaType.ALL_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value = "查询导语")
+    public BaseResponse getGuideSentence() {
+        BaseResponse response = new BaseResponse(RESPONSE_SUCCESS);
+        response.setData(this.ssManager.getGuideSentence());
         return response;
     }
 

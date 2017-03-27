@@ -14,6 +14,15 @@ public class UserInfo {
     private String email;
     private String phone;
     private String mac;
+    private String ip;
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
 
     public String getName() {
         return name;

@@ -2,27 +2,29 @@ package com.ss.server.service;
 
 import com.ss.server.common.Constant;
 import com.ss.server.dao.SSUserDao;
+import com.ss.server.dao.jpa.GuideSentenceRepository;
 import com.ss.server.dao.jpa.KcptunRepository;
 import com.ss.server.dao.jpa.SSKeyRepository;
 import com.ss.server.dao.jpa.UserConfigRepository;
 import com.ss.server.domain.AccountInfo;
+import com.ss.server.domain.SentenceDto;
 import com.ss.server.domain.User;
 import com.ss.server.domain.UserConfigDto;
 import com.ss.server.domain.in.ChargeRequest;
+import com.ss.server.domain.in.SentenceRequest;
 import com.ss.server.domain.in.UserInfo;
-import com.ss.server.entity.Kcptun;
-import com.ss.server.entity.SSKey;
-import com.ss.server.entity.SSUser;
-import com.ss.server.entity.UserConfig;
+import com.ss.server.entity.*;
 import com.ss.server.utils.CommandExecutor;
 import com.ss.server.utils.KeyGenerator;
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.Date;
 
 /**
@@ -55,6 +57,8 @@ public class SSManager {
 
     @Autowired
     private UserConfigRepository userConfigRepository;
+    @Autowired
+    private GuideSentenceRepository guideSentenceRepository;
 
     /**
      * Create user.
@@ -143,39 +147,48 @@ public class SSManager {
         }
     }
 
-
     /**
-     * Gets config.
+     * Gets user config.
      *
      * @param userInfo the user info
-     * @return the config
+     * @return the user config
      */
-    public UserConfigDto getConfig(UserInfo userInfo) {
+    @Transactional
+    public UserConfigDto getUserConfig(UserInfo userInfo) {
+        UserConfigDto result = new UserConfigDto();
         UserConfig userConfig = findConfigByMac(userInfo.getMac());
-        if (userConfig != null) {
-            log.info("用户获取配置信息:{}", userConfig.toString());
-            UserConfigDto ssConfig = new UserConfigDto();
-            BeanUtils.copyProperties(userConfig, ssConfig);
-            return ssConfig;
-        } else {
+        if (userInfo != null && !StringUtils.isEmpty(userInfo.getKey())) {
             // 验证秘钥
             SSKey ssKey = validateKey(userInfo.getKey());
-            if (ssKey != null) {
-                User user = new User();
-                user.setEmail(userInfo.getMac());
-                user.setFirstName(userInfo.getMac());
-                SSUser ssUser = this.createSSUser(user, ssKey.getFlow());
-                Kcptun kcptun = this.createKcpUser(ssUser.getPort(), ssKey.getKeyHost());
-                this.executeProcess(kcptun);
-                UserConfig ssConfig = this.saveUserConfig(userInfo, kcptun, ssUser);
-                UserConfigDto userConfigDto = new UserConfigDto();
-                BeanUtils.copyProperties(ssConfig, userConfigDto);
-                return userConfigDto;
+            if (ssKey != null) { // 验证秘钥成功
+                // 充值
+                if (userConfig != null) { // 已经有绑定过mac地址，再次充值操作
+                    // 增加流量操作
+                    ssUserDao.updateFlow(userInfo.getMac(), ssKey.getFlow() * Constant.PER_GB);
+                    BeanUtils.copyProperties(userConfig, result);
+                } else { // 首次使用，注册用户
+                    BeanUtils.copyProperties(createAccount(userInfo, ssKey), result);
+                }
             } else {
-                log.info("创建用户失败，验证码无效！");
-                throw new RuntimeException("无效的验证码");
+                // 失败
+                log.info("充值失败：{},{}", userInfo.getKey(), userInfo.getMac());
+                throw new RuntimeException("秘钥验证失败");
             }
+        } else { // 获取用户配置
+            BeanUtils.copyProperties(userConfig, result);
         }
+        return result;
+    }
+
+    private UserConfig createAccount(UserInfo userInfo, SSKey ssKey) {
+        User user = new User();
+        user.setEmail(userInfo.getIp());
+        user.setFirstName(userInfo.getMac());
+        SSUser ssUser = this.createSSUser(user, ssKey.getFlow());
+        Kcptun kcptun = this.createKcpUser(ssUser.getPort(), ssKey.getKeyHost());
+        this.executeProcess(kcptun);
+        UserConfig ssConfig = this.saveUserConfig(userInfo, kcptun, ssUser);
+        return ssConfig;
     }
 
     private Kcptun createKcpUser(int ssPort, String kcpHost) {
@@ -216,7 +229,7 @@ public class SSManager {
     /**
      * ./server_linux_386 -t 127.0.0.1:10896 -l :1980 -mode fast2
      *
-     * @param kcptun
+     * @param kcptun the kcptun
      */
     public void executeProcess(Kcptun kcptun) {
         log.info("创建KCP进程");
@@ -271,5 +284,29 @@ public class SSManager {
     public Iterable<Kcptun> findAllKcptun() {
         return kcptunRepository.findAll();
     }
+
+
+    /**
+     * Gets guide sentence.
+     *
+     * @return the guide sentence
+     */
+    public SentenceDto getGuideSentence() {
+        SentenceDto dto = new SentenceDto();
+        BeanUtils.copyProperties(this.guideSentenceRepository.findTopByOrderByCreateTimeDesc(), dto);
+        return dto;
+    }
+
+    /**
+     * Save guide sentence.
+     *
+     * @param request the request
+     */
+    public void saveGuideSentence(SentenceRequest request) {
+        GuideSentence guideSentence = new GuideSentence();
+        BeanUtils.copyProperties(request, guideSentence);
+        this.guideSentenceRepository.save(guideSentence);
+    }
+
 
 }
