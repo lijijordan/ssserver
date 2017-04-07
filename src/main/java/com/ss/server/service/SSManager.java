@@ -2,20 +2,15 @@ package com.ss.server.service;
 
 import com.ss.server.common.Constant;
 import com.ss.server.dao.SSUserDao;
-import com.ss.server.dao.jpa.GuideSentenceRepository;
-import com.ss.server.dao.jpa.KcptunRepository;
-import com.ss.server.dao.jpa.SSKeyRepository;
-import com.ss.server.dao.jpa.UserConfigRepository;
-import com.ss.server.domain.AccountInfo;
-import com.ss.server.domain.SentenceDto;
-import com.ss.server.domain.User;
-import com.ss.server.domain.UserConfigDto;
+import com.ss.server.dao.jpa.*;
+import com.ss.server.domain.*;
 import com.ss.server.domain.in.ChargeRequest;
 import com.ss.server.domain.in.SentenceRequest;
 import com.ss.server.domain.in.UserInfo;
 import com.ss.server.entity.*;
 import com.ss.server.utils.CommandExecutor;
 import com.ss.server.utils.KeyGenerator;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -25,7 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -59,6 +56,10 @@ public class SSManager {
     private UserConfigRepository userConfigRepository;
     @Autowired
     private GuideSentenceRepository guideSentenceRepository;
+
+
+    @Autowired
+    private HostRepository hostRepository;
 
     /**
      * Create user.
@@ -105,36 +106,29 @@ public class SSManager {
      *
      * @param keyLength the key length
      * @param host      the host
-     * @return the string
-     */
-    public String generateKey(int keyLength, String host) {
-        return this.generateKey(keyLength, host, Constant.DEFAULT_FLOW_5_GB);
-    }
-
-    /**
-     * Generate key string.
-     *
-     * @param keyLength the key length
-     * @param host      the host
      * @param flow      the flow
+     * @param keyType   the key type
      * @return the string
      */
-    public String generateKey(int keyLength, String host, int flow) {
+    public SSKey generateKey(int keyLength, String host, int flow, String keyType) {
         if (host.equals("")) {
             host = Constant.KCP_DEFAULT_HOST;
         }
         String key = KeyGenerator.make(keyLength);
         SSKey ssKey = new SSKey();
         ssKey.setKey(key);
+        ssKey.setKeyType(keyType);
+        // Base64
+        ssKey.setBase64Code(new String(Base64.encodeBase64(key.getBytes())));
         ssKey.setFlow(flow);
         ssKey.setKeyHost(host);
         ssKey.setKeyLength(keyLength);
-        this.ssKeyRepository.save(ssKey);
-        return ssKey.getKey();
+        return this.ssKeyRepository.save(ssKey);
     }
 
 
-    private SSKey validateKey(String key) {
+    private SSKey validateKey(String code) {
+        String key = new String(Base64.decodeBase64(code));
         SSKey ssKey = this.ssKeyRepository.findByKey(key);
         if (ssKey != null && !ssKey.isUsed()) {
             // 验证完成失效
@@ -163,9 +157,11 @@ public class SSManager {
             if (ssKey != null) { // 验证秘钥成功
                 // 充值
                 if (userConfig != null) { // 已经有绑定过mac地址，再次充值操作
-                    // 增加流量操作
-                    ssUserDao.updateFlow(userInfo.getMac(), ssKey.getFlow() * Constant.PER_GB);
-                    BeanUtils.copyProperties(userConfig, result);
+                    if (ssKey.getKeyType().equals(SSKey.KEY_TYPE_CHARGE)) { // 充值类型秘钥
+                        // 增加流量操作
+                        ssUserDao.updateFlow(userInfo.getMac(), ssKey.getFlow() * Constant.PER_GB);
+                        BeanUtils.copyProperties(userConfig, result);
+                    }
                 } else { // 首次使用，注册用户
                     BeanUtils.copyProperties(createAccount(userInfo, ssKey), result);
                 }
@@ -309,4 +305,41 @@ public class SSManager {
     }
 
 
+    /**
+     * Create host.
+     *
+     * @param ip the ip
+     */
+    public void createHost(String ip) {
+        Host host = new Host();
+        host.setIp(ip);
+        host.setConnectedSum(0);
+        this.hostRepository.save(host);
+    }
+
+    /**
+     * Find all hosts list.
+     *
+     * @return the list
+     */
+    public List<HostDto> findAllHosts() {
+        List<HostDto> list = new ArrayList<>();
+        this.hostRepository.findAll().forEach(host -> {
+            HostDto hostDto = new HostDto();
+            BeanUtils.copyProperties(host, hostDto);
+            list.add(hostDto);
+        });
+        return list;
+    }
+
+    /**
+     * Add host connections.
+     *
+     * @param ip the ip
+     */
+    public void addHostConnections(String ip) {
+        Host host = this.hostRepository.findByIp(ip);
+        host.setConnectedSum(host.getConnectedSum() + 1);
+        this.hostRepository.save(host);
+    }
 }

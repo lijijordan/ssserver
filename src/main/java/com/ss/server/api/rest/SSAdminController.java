@@ -1,8 +1,10 @@
 package com.ss.server.api.rest;
 
+import com.ss.server.domain.HostDto;
 import com.ss.server.domain.SSKeyRequest;
 import com.ss.server.domain.in.SentenceRequest;
 import com.ss.server.domain.out.BaseResponse;
+import com.ss.server.entity.SSKey;
 import com.ss.server.service.SSManager;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -39,8 +41,8 @@ public class SSAdminController extends AbstractRestHandler {
     @ApiOperation(value = "生成秘钥")
     public BaseResponse keyGeneration(@RequestBody SSKeyRequest request) {
         BaseResponse response = new BaseResponse(RESPONSE_SUCCESS);
-        String key = ssManager.generateKey(request.getLength(), request.getKeyHost(), request.getFlow());
-        response.setData(key);
+        SSKey ssKey = ssManager.generateKey(request.getLength(), request.getKeyHost(), request.getFlow(), request.getKeyType());
+        response.setData(ssKey);
         return response;
     }
 
@@ -59,6 +61,40 @@ public class SSAdminController extends AbstractRestHandler {
     public BaseResponse createGuideSentence(@RequestBody SentenceRequest request) {
         BaseResponse response = new BaseResponse(RESPONSE_SUCCESS);
         this.ssManager.saveGuideSentence(request);
+        return response;
+    }
+
+
+    /**
+     * Create guide sentence base response.
+     *
+     * @return the base response
+     */
+    @RequestMapping(value = "/host/create",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    @ApiOperation(value = "创建Host")
+    public BaseResponse createHost(@RequestBody HostDto hostDto) {
+        BaseResponse response = new BaseResponse(RESPONSE_SUCCESS);
+        this.ssManager.createHost(hostDto.getIp());
+        return response;
+    }
+
+
+    /**
+     * Find hosts base response.
+     *
+     * @return the base response
+     */
+    @RequestMapping(value = "/host/find",
+            method = RequestMethod.GET,
+            consumes = MediaType.ALL_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value = "查询HOST")
+    public BaseResponse findHosts() {
+        BaseResponse response = new BaseResponse(RESPONSE_SUCCESS);
+        response.setData(this.ssManager.findAllHosts());
         return response;
     }
 

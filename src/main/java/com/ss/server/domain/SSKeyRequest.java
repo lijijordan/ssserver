@@ -18,6 +18,16 @@ public class SSKeyRequest {
      */
     private int flow;
 
+    private String keyType;
+
+    public String getKeyType() {
+        return keyType;
+    }
+
+    public void setKeyType(String keyType) {
+        this.keyType = keyType;
+    }
+
     public int getLength() {
         return length;
     }

@@ -15,5 +15,4 @@ public interface UserConfigRepository extends PagingAndSortingRepository<UserCon
      * @return the user config
      */
     UserConfig findByMac(String mac);
-
 }

@@ -81,4 +81,21 @@ public class ToolServiceController extends AbstractRestHandler {
         return response;
     }
 
+
+    /**
+     * Find hosts base response.
+     *
+     * @return the base response
+     */
+    @RequestMapping(value = "/host/find",
+            method = RequestMethod.GET,
+            consumes = MediaType.ALL_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value = "查询HOST")
+    public BaseResponse findHosts() {
+        BaseResponse response = new BaseResponse(RESPONSE_SUCCESS);
+        response.setData(this.ssManager.findAllHosts());
+        return response;
+    }
+    
 }

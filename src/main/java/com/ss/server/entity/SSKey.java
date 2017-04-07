@@ -11,6 +11,9 @@ import javax.persistence.Table;
 @Table(name = "ss_key")
 public class SSKey extends BaseEntity {
 
+    public static final String KEY_TYPE_CHARGE = "Charge";
+    public static final String KEY_TYPE_CREATE = "Create";
+
     @Column
     private int keyLength;
 
@@ -27,6 +30,29 @@ public class SSKey extends BaseEntity {
      * 流量
      */
     private int flow;
+
+    private String base64Code;
+
+    /**
+     * Charge \ Create
+     */
+    private String keyType;
+
+    public String getKeyType() {
+        return keyType;
+    }
+
+    public void setKeyType(String keyType) {
+        this.keyType = keyType;
+    }
+
+    public String getBase64Code() {
+        return base64Code;
+    }
+
+    public void setBase64Code(String base64Code) {
+        this.base64Code = base64Code;
+    }
 
     public int getFlow() {
         return flow;
