@@ -1,23 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="3402baa7-954f-4815-a095-c6191eebeec0" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/com/ss/server/dao/jpa/HostRepository.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/com/ss/server/domain/HostDto.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/java/com/ss/server/entity/Host.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/test/java/com/khoubyari/Test.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/com/ss/server/api/rest/SSAdminController.class" afterPath="$PROJECT_DIR$/target/classes/com/ss/server/api/rest/SSAdminController.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/com/ss/server/api/rest/ToolServiceController.class" afterPath="$PROJECT_DIR$/target/classes/com/ss/server/api/rest/ToolServiceController.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/com/ss/server/entity/SSKey.class" afterPath="$PROJECT_DIR$/target/classes/com/ss/server/entity/SSKey.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/com/ss/server/service/SSManager.class" afterPath="$PROJECT_DIR$/target/classes/com/ss/server/service/SSManager.class" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/ss/server/api/rest/SSAdminController.java" afterPath="$PROJECT_DIR$/src/main/java/com/ss/server/api/rest/SSAdminController.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/ss/server/api/rest/ToolServiceController.java" afterPath="$PROJECT_DIR$/src/main/java/com/ss/server/api/rest/ToolServiceController.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/ss/server/dao/jpa/UserConfigRepository.java" afterPath="$PROJECT_DIR$/src/main/java/com/ss/server/dao/jpa/UserConfigRepository.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/ss/server/domain/SSKeyRequest.java" afterPath="$PROJECT_DIR$/src/main/java/com/ss/server/domain/SSKeyRequest.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/ss/server/entity/SSKey.java" afterPath="$PROJECT_DIR$/src/main/java/com/ss/server/entity/SSKey.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/com/ss/server/service/SSManager.java" afterPath="$PROJECT_DIR$/src/main/java/com/ss/server/service/SSManager.java" />
-    </list>
+    <list default="true" id="3402baa7-954f-4815-a095-c6191eebeec0" name="Default" comment="" />
     <ignored path="smart-device-rs-server.iws" />
     <ignored path=".idea/workspace.xml" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -1441,7 +1425,7 @@
       <workItem from="1490493640917" duration="14138000" />
       <workItem from="1490667237698" duration="13263000" />
       <workItem from="1491034607159" duration="4671000" />
-      <workItem from="1491358138559" duration="9707000" />
+      <workItem from="1491358138559" duration="10118000" />
     </task>
     <task id="LOCAL-00001" summary="config kcptun Host">
       <created>1488792125213</created>
@@ -1468,7 +1452,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="120937000" />
+    <option name="totallyTimeSpent" value="121348000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="4" y="-1057" width="1871" height="1057" extended-state="0" />
